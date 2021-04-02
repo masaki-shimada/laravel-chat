@@ -5,7 +5,18 @@
             <video class="video-here" ref="video-here" autoplay></video>
             <video class="video-there" ref="video-there" autoplay></video>
             <div class="text-right" v-for="(name,userId) in others" :key="userId">
-                <button @click="startVideoChat(userId)" v-text="`Talk with ${name}`"/>
+                <button @click="startVideoChat(userId)" v-text="`Chat with ${name}`"/>
+            </div>
+
+            <div>
+                <p>Video</p>
+                <toggle-button @change="switchVideo"
+                               :value="true"
+                               :labels="{checked: 'On', unchecked: 'Off'}"/>
+                <p>Audio</p>
+                <toggle-button @change="switchAudio"
+                               :value="true"
+                               :labels="{checked: 'On', unchecked: 'Off'}"/>
             </div>
         </div>
     </div>
@@ -13,10 +24,15 @@
 <script>
 import Pusher from 'pusher-js';
 import Peer from 'simple-peer';
+import ToggleButton from 'vue-js-toggle-button';
+
+Vue.use(ToggleButton);
+
 export default {
     props: ['user', 'others', 'pusherKey', 'pusherCluster'],
     data() {
         return {
+            videoHere: null,
             channel: null,
             stream: null,
             peers: {}
@@ -60,10 +76,20 @@ export default {
         async setupVideoChat() {
             // To show pusher errors
             // Pusher.logToConsole = true;
-            const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-            const videoHere = this.$refs['video-here'];
-            videoHere.srcObject = stream;
+            const stream = await navigator.mediaDevices.getUserMedia({video: true, audio: {
+                    autoGainControl: false,
+                    echoCancellation: true,
+                    echoCancellationType: "system", // <-ここ
+                    latency: 0.01,
+                    noiseSuppression: false,
+                    sampleRate: 48000,
+                    sampleSize: 16,
+                    volume: 0.5
+            }});
+            this.videoHere = this.$refs['video-here'];
+            this.videoHere.srcObject = stream
             this.stream = stream;
+
             const pusher = this.getPusherInstance();
             this.channel = pusher.subscribe('presence-video-chat');
             this.channel.bind(`client-signal-${this.user.id}`, (signal) =>
@@ -80,6 +106,29 @@ export default {
                     headers: {
                         'X-CSRF-Token': document.head.querySelector('meta[name="csrf-token"]').content
                     }
+                }
+            });
+        },
+        switchVideo() {
+            this.stream.getTracks().forEach((track) => {
+                if (track.kind == 'video') {
+                    if (track.enabled == true) {
+                        track.enabled = false;
+                    } else if (track.enabled == false) {
+                        track.enabled = true;
+                    }
+                }
+            });
+        },
+        switchAudio() {
+            this.stream.getTracks().forEach((track) => {
+                if (track.kind == 'audio') {
+                    if (track.enabled == true) {
+                        track.enabled = false;
+                    } else if (track.enabled == false) {
+                        track.enabled = true;
+                    }
+                    console.dir(track);
                 }
             });
         }
