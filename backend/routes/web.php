@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\VideoChatController;
+use App\Http\Controllers\ChatController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -24,6 +25,10 @@ Route::get('/dashboard', function () {
 Route::group(['middleware' => 'auth'], function(){
     Route::get('/video_chat', [VideoChatController::class, 'index']);
     Route::post('/auth/video_chat', [VideoChatController::class, 'auth']); // 認証ページ
+
+    Route::get('/chat/', [ChatController::class, 'index']);
+    Route::get('/chat/messages', [ChatController::class, 'fetchMessages']);
+    Route::post('/chat/messages', [ChatController::class, 'sendMessage']);
 });
 
 require __DIR__.'/auth.php';

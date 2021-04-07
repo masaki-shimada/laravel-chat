@@ -21,6 +21,7 @@ window.Vue = require('vue').default;
 
 Vue.component('example-component', require('./components/ExampleComponent.vue').default);
 Vue.component('video_chat-component', require('./components/VideoChatComponent.vue').default);
+Vue.component('chat-component', require('./components/ChatComponent.vue').default);
 
 /**
  * Next, we will create a fresh Vue application instance and attach it to
