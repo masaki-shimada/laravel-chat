@@ -27,6 +27,9 @@ Route::group(['middleware' => 'auth'], function(){
     Route::post('/auth/video_chat', [VideoChatController::class, 'auth']); // 認証ページ
 
     Route::get('/chat/', [ChatController::class, 'index']);
+    Route::get('/chat/room/{user_id}', [ChatController::class, 'room']);
+    Route::get('/chat/list', [ChatController::class, 'list']);
+    Route::get('/chat/users', [ChatController::class, 'getUsers']);
     Route::get('/chat/messages', [ChatController::class, 'fetchMessages']);
     Route::post('/chat/messages', [ChatController::class, 'sendMessage']);
 });

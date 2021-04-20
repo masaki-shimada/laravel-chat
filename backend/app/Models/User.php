@@ -45,4 +45,9 @@ class User extends Authenticatable
     {
         return $this->hasMany('App\Models\Message');
     }
+
+    public function scopeFriends($query, $user_id)
+    {
+        return $query->where('id', '!=', $user_id);
+    }
 }
